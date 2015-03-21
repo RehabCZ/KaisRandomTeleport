@@ -1,0 +1,19 @@
+name: KaisRandomTP
+main: net.kaikk.mc.rtp.KaisRandomTP
+version: 1.0
+author: KaiNoMood
+softdepend: [WorldBorder]
+
+commands:
+   randomtp:
+      description: RandomTP main command
+      aliases: [rtp]
+
+permissions:
+    rtp.use:
+        description: Use /rtp 
+        default: true
+    rtp.bypass:
+        description: Permits to bypass time limit
+        default: op
+ 
