@@ -18,4 +18,8 @@ public class WBHelper {
 		
 		return info;
 	}
+	
+	static public boolean insideBorder(String name, int x, int z) {
+		return WorldBorder.plugin.getWorldBorder(name).insideBorder(x, z);
+	}
 }

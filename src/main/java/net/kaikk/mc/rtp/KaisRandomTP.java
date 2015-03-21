@@ -65,7 +65,7 @@ public class KaisRandomTP extends JavaPlugin {
 			}
 		}
 
-		int x, y, z, count=0, rx, rz, sx, sz;
+		int x, y=0, z, count=0, rx, rz, sx, sz;
 		Integer[] info = null;
 		
 		if (this.worldBorder!=null) {
@@ -91,8 +91,10 @@ public class KaisRandomTP extends JavaPlugin {
 		do {
 			x = (int) (Math.random()*rx*2)-rx+sx;
 			z = (int) (Math.random()*rz*2)-rz+sz;
-			y=searchSuitableYLevel(world, x, z);
-			count++;
+			if (this.worldBorder==null || WBHelper.insideBorder(world.getName(), x, z)) {
+				y=searchSuitableYLevel(world, x, z);
+				count++;
+			}
 		} while(y==-1&&count<10);
 		
 		if (y==-1) {
