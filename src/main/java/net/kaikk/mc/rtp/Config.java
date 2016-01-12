@@ -1,64 +1,71 @@
 package net.kaikk.mc.rtp;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-class Config {
-	final static String configFilePath = "plugins" + File.separator + "KaisRandomTP" + File.separator + "config.yml";
-	private File configFile;
-	FileConfiguration config;
-	
-	int range, timelimit;
-	Integer[] blockIdBlacklist;
-	String[] worldBlacklist;
-	
-	Config() {
-		this.configFile = new File(configFilePath);
-		this.config = YamlConfiguration.loadConfiguration(this.configFile);
-		this.load();
-	}
+public class Config {
+	private KaisRandomTP instance;
 
-	void load() {
-		this.range=config.getInt("range", 5000);
-		this.timelimit=config.getInt("timelimit", 30);
+	int range, cooldown;
+	List<Material> blockBlacklist = new ArrayList<Material>();
+	List<Material> blockWhitelist = new ArrayList<Material>();
+	List<String> worldBlacklist;
+	
+	boolean warningMessage;
 		
-		List<?> mbl=config.getList("blockIdBlacklist");
-		List<?> wbl=config.getList("worldBlacklist");
-
-		if (mbl!=null && mbl.size()>0) {
-			this.blockIdBlacklist=mbl.toArray(new Integer[mbl.size()]);
-		} else {
-			this.blockIdBlacklist=new Integer[1];
-			this.blockIdBlacklist[0]=0;
+	Config(KaisRandomTP instance) {
+		this.instance = instance;
+		instance.getConfig().options().copyDefaults(true);
+		instance.saveDefaultConfig();
+		
+		this.range = instance.getConfig().getInt("Range");
+		this.cooldown = instance.getConfig().getInt("Cooldown");
+		
+		for (String s : instance.getConfig().getStringList("BlockBlacklist")) {
+			Material material = Material.matchMaterial(s);
+			if (material!=null) {
+				blockBlacklist.add(material);
+			} else {
+				instance.getLogger().warning("Blacklisted material '"+s+"' is invalid.");
+			}
 		}
 
-		if (wbl!=null && wbl.size()>0) {
-			this.worldBlacklist = wbl.toArray(new String[wbl.size()]);
-		} else {
-			this.worldBlacklist=new String[2];
-			this.worldBlacklist[0] = "FakeWorld1";
-			this.worldBlacklist[1] = "FakeWorld2";
+		for (String s : instance.getConfig().getStringList("BlockWhitelist")) {
+			Material material = Material.matchMaterial(s);
+			if (material!=null) {
+				blockWhitelist.add(material);
+			} else {
+				instance.getLogger().warning("Whitelisted material '"+s+"' is invalid.");
+			}
 		}
 		
-		this.save();
+		worldBlacklist = instance.getConfig().getStringList("WorldBlacklist");
+		
+		warningMessage = instance.getConfig().getBoolean("WarningMessage");
+		
+		// Messages	
+		instance.saveResource("messages.yml", false);
+		FileConfiguration messages = YamlConfiguration.loadConfiguration(new File(instance.getDataFolder(), "messages.yml"));
+		
+		if (messages==null) {
+			instance.getLogger().severe("There was an error while loading messages.yml!");
+		} else {
+			Messages.messages.clear();
+			for (String key : messages.getKeys(false)) {
+				Messages.messages.put(key, ChatColor.translateAlternateColorCodes('&', messages.getString(key)));
+			}
+		}
 	}
 	
-	void save() {
-		try {
-			this.config.set("range", this.range);
-			this.config.set("timelimit", this.timelimit);
-			
-			this.config.set("blockIdBlacklist", this.blockIdBlacklist);
-			this.config.set("worldBlacklist", this.worldBlacklist);
-			
-			this.config.save(this.configFile);
-		} catch (IOException e) {
-			KaisRandomTP.instance.getLogger().warning("Couldn't create or save config file.");
-			e.printStackTrace();
+	void saveResource(String name) {
+		if (!new File(instance.getDataFolder(), name).exists()) {
+			instance.saveResource(name, false);
 		}
 	}
 }

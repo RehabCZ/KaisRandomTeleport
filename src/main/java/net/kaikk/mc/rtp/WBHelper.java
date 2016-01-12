@@ -4,22 +4,29 @@ import com.wimbli.WorldBorder.BorderData;
 import com.wimbli.WorldBorder.WorldBorder;
 
 public class WBHelper {
-	static public Integer[] getInfo(String name) {
+	static public WBData getInfo(String name) {
+		if (WorldBorder.plugin==null) {
+			return null;
+		}
+		
 		BorderData bd = WorldBorder.plugin.getWorldBorder(name);
 		if (bd==null) {
 			return null;
 		}
-		
-		Integer[] info = new Integer[4];
-		info[0]=bd.getRadiusX();
-		info[1]=bd.getRadiusZ();
-		info[2]=(int) bd.getX();
-		info[3]=(int) bd.getZ();
-		
-		return info;
+
+		return new WBData(bd.getRadiusX(), bd.getRadiusZ(), (int) bd.getX(), (int) bd.getZ());
 	}
 	
 	static public boolean insideBorder(String name, int x, int z) {
-		return WorldBorder.plugin.getWorldBorder(name).insideBorder(x, z);
+		if (WorldBorder.plugin!=null) {
+			BorderData bd = WorldBorder.plugin.getWorldBorder(name);
+			if (bd!=null) {
+				return WorldBorder.plugin.getWorldBorder(name).insideBorder(x, z);
+			} else {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

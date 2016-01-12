@@ -1,7 +1,7 @@
-name: KaisRandomTP
-main: net.kaikk.mc.rtp.KaisRandomTP
-version: 1.0
-author: KaiNoMood
+name: ${project.artifactId}
+main: ${package}.${project.artifactId}
+version: ${project.version}
+author: ${developer}
 softdepend: [WorldBorder]
 
 commands:

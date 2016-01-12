@@ -1,9 +1,12 @@
 package net.kaikk.mc.rtp;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -14,14 +17,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class KaisRandomTP extends JavaPlugin {
 	static KaisRandomTP instance;
+	static final String messagePrefix = "[Kai's Random Teleport]";
 	Config config;
-	ConcurrentHashMap<UUID,Long> lastUsed = new ConcurrentHashMap<UUID,Long>();
+	Map<UUID,Long> lastUsed = new ConcurrentHashMap<UUID,Long>();
+
 	Class<?> worldBorder;
 	
 	public void onEnable() {
 		instance=this;
 		
-		this.config=new Config();
+		this.config=new Config(this);
 		
 		try {
 			worldBorder=Class.forName("com.wimbli.WorldBorder.WorldBorder");
@@ -32,154 +37,138 @@ public class KaisRandomTP extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (!(sender instanceof Player)) {
-			sender.sendMessage("You're the console.");
+			sender.sendMessage("The console is omnipresent.");
 			return false;
 		}
 		
+		Player player = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("randomtp")) {
-			if(!sender.hasPermission("rtp.use")) {
-				sender.sendMessage("No permission.");
+			if(!player.hasPermission("rtp.use")) {
+				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("NoPermission"));
 				return false;
 			}
 			
-			Player player = (Player) sender;
-			return rtp(player);
+			if (this.config.warningMessage && !player.hasPermission("rtp.bypass") && this.lastUsed.get(player.getUniqueId())==null) {
+				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("WarningMessage"));
+				this.lastUsed.put(player.getUniqueId(), 0L);
+				return false;
+			}
+			
+			rtp(player);
+			return true;
 		}
 		return false;
 	}
 	
-	public boolean rtp(Player player) {
+	public void rtp(Player player) {
 		World world = player.getWorld();
-
+		
+		if (player.getHealth()<4) {
+			player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("LowHealth"));
+			return;
+		}
+		
+		if (player.getNoDamageTicks()>0) {
+			player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("GotDamaged"));
+			return;
+		}
+		
 		if (!player.hasPermission("rtp.bypass")) {
 			if (isBlacklistedWorld(world.getName())) {
-				player.sendMessage("You can't use /rtp in this world.");
-				return false;
+				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("BlacklistedWorld"));
+				return;
 			}
 			
 			Long lastUsed = this.lastUsed.get(player.getUniqueId());
 
-			if (lastUsed!=null && System.currentTimeMillis()-lastUsed < this.config.timelimit*1000) {
-				player.sendMessage("Wait "+(this.config.timelimit-((System.currentTimeMillis()-lastUsed)/1000))+" seconds before using /rtp again.");
-				return false;
+			if (lastUsed!=null && System.currentTimeMillis()-lastUsed < this.config.cooldown*1000) {
+				player.teleport(player.getLocation());
+				player.sendMessage(ChatColor.RED + messagePrefix + Messages.get("Cooldown").replace("%seconds", String.valueOf((this.config.cooldown-((System.currentTimeMillis()-lastUsed)/1000)))));
+				return;
 			}
-		}
-
-		int x, y=0, z, count=0, rx, rz, sx, sz;
-		Integer[] info = null;
-		
-		if (this.worldBorder!=null) {
-			info = WBHelper.getInfo(world.getName());
-		}
-		
-		if (info!=null) {
-			rx=info[0];
-			rz=info[1];
-			sx=info[2];
-			sz=info[3];
 		} else {
-			Location spawn = world.getSpawnLocation();
-			rx=(int) world.getWorldBorder().getSize()/2;
-			if (this.config.range<rx) {
-				rx=this.config.range;
+			Long lastUsed = this.lastUsed.get(player.getUniqueId());
+
+			if (lastUsed!=null && System.currentTimeMillis()-lastUsed < 5000) {
+				player.teleport(player.getLocation());
+				player.sendMessage(ChatColor.RED + messagePrefix + Messages.get("Cooldown").replace("%seconds", String.valueOf((5-((System.currentTimeMillis()-lastUsed)/1000)))));
+				return;
 			}
-			rz=rx;
-			sx=spawn.getBlockX();
-			sz=spawn.getBlockZ();
 		}
 
-		do {
-			x = (int) (Math.random()*rx*2)-rx+sx;
-			z = (int) (Math.random()*rz*2)-rz+sz;
-			if (this.worldBorder==null || WBHelper.insideBorder(world.getName(), x, z)) {
-				y=searchSuitableYLevel(world, x, z);
-				count++;
-			}
-		} while(y==-1&&count<10);
-		
-		if (y==-1) {
-			player.sendMessage("No suitable location found!");
-			return false;
-		}
-		y+=2;
-		Location rtp = new Location(world, x,y,z);
-		player.sendMessage("Teleporting you at "+x+", "+y+", "+z);
-		world.getChunkAt(rtp).load(true);
-		this.lastUsed.put(player.getUniqueId(), System.currentTimeMillis());
-		new CheckTPTask(this, player, rtp).runTaskTimer(this, 4L, 4L);
-		return true;
+		player.sendMessage(ChatColor.GOLD + messagePrefix + " " + Messages.get("PendingTeleport"));
+		KaisRandomTP.instance.lastUsed.put(player.getUniqueId(), System.currentTimeMillis());
+		Location loc=player.getLocation();
+		new SearchTeleportLocationTask(player, new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ())).runTask(this);
 	}
 	
-	private int searchSuitableYLevel(World world, int x, int z) {
-		int y=60;
+	
+	// This method search for a safe y level at the specified world, x, z location
+	// It uses a custom algorithm that tries to skip empty blocks (fastforward)
+	@SuppressWarnings("deprecation")
+	int searchSuitableYLevel(World world, int x, int z) {
+		int y=126; // Max y level
+		int fastforward=8; // default fastforward
+		if (world.getEnvironment()==World.Environment.THE_END) { // 
+			fastforward=2; // fastforward for the end
+		}
+		
 		Block block = world.getBlockAt(x, y, z);
+		int c, solid=Integer.MAX_VALUE, shift=0;
 		do {
-			block = block.getRelative(BlockFace.UP);
-			if (block.isLiquid()) {
-				return -1;
+			if (block.getType().isSolid() || isWhitelisted(block.getType())) {
+				if (shift==fastforward && solid>y) { // Stop fastforward
+					solid=y;
+					y+=fastforward-1;
+					block = block.getRelative(BlockFace.UP, fastforward-1);
+					continue;
+				} else if (this.isBlacklisted(block.getType())) { // blacklisted block
+					shift=4;
+				} else {
+					Block upperBlock = block.getRelative(BlockFace.UP);
+					
+					c=0;
+					while(c<4) { // a y level is suitable if there are 4 empty blocks above a valid solid block
+						if (upperBlock.getTypeId()!=0) { // if it's not empty
+							if (upperBlock.isLiquid()) { // if you get a liquid, it could be an ocean or a lava lake... there won't be any good y level here.
+								return -1;
+							}
+							break;
+						}
+						upperBlock = upperBlock.getRelative(BlockFace.UP);
+						c++;
+					}
+					
+					if (c==4) {
+						return y; // Found a suitable y level
+					} else {
+						shift=4; // 
+					}
+				}
+			} else {
+				if (solid>y) { // fastforward mode
+					shift=fastforward;
+				} else {
+					shift=1;
+				}
 			}
 			
-			if (isSuitableBlock(block)) {
-				return y;
-			}
-			y++;
-		} while(y<126);
-
-		y=59;
-		block = world.getBlockAt(x, y, z);
-		do {
-			block = block.getRelative(BlockFace.DOWN);
-			if (block.isLiquid()) {
-				return -1;
-			}
-			
-			if (isSuitableBlock(block)) {
-				return y;
-			}
-			y--;
+			y-=shift;
+			block = block.getRelative(BlockFace.DOWN, shift);
 		} while(y>0);
 		
 		return -1;
 	}
-	
-	@SuppressWarnings("deprecation")
-	private boolean isSuitableBlock(Block block) {
-		if (block.getType().isSolid() && !this.isBlacklistedId(block.getType().getId())) {
-			Block upperBlock = block.getRelative(BlockFace.UP);
-			
-			int c=0;
-			while(c<5) {
-				if (!upperBlock.isEmpty()) {
-					break;
-				}
-				upperBlock = upperBlock.getRelative(BlockFace.UP);
-				c++;
-			}
-			
-			if (c==5) {
-				return true;
-			}
-		}
-		return false;
+
+	boolean isBlacklisted(Material blockMaterial) {
+		return this.config.blockBlacklist.contains(blockMaterial);
 	}
 	
-	private boolean isBlacklistedId(int blockId) {
-		for (Integer blacklistedId : this.config.blockIdBlacklist) {
-			if (blacklistedId==blockId) {
-				return true;
-			}
-		}
-		
-		return false;
+	boolean isBlacklistedWorld(String world) {
+		return this.config.worldBlacklist.contains(world.toLowerCase());
 	}
 	
-	private boolean isBlacklistedWorld(String world) {
-		for (String blacklistedWorld : this.config.worldBlacklist) {
-			if (world.equalsIgnoreCase(blacklistedWorld)) {
-				return true;
-			}
-		}
-		
-		return false;
+	boolean isWhitelisted(Material blockMaterial) {
+		return this.config.blockWhitelist.contains(blockMaterial);
 	}
 }

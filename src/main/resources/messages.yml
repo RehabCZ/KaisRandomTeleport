@@ -1,0 +1,17 @@
+NoPermission: "You don't have permission to use this command."
+
+NoLocationFound: "Random teleport cancelled: no suitable location found!"
+LowHealth: "Random Teleport cancelled: your health is too low."
+GotDamaged: "Random Teleport cancelled: you just got damaged."
+BlacklistedWorld: "You can't Random Teleport in this world."
+MovedOrDamaged: "Random teleport cancelled: either you moved or you got damaged."
+
+Cooldown: "Cooldown: %seconds seconds"
+
+WarningMessage: "Warning: use random teleport at your own risk!"
+
+PendingTeleport: "You'll be teleported to a safe location, hopefully. Do not move."
+OnDeath: ":'("
+UnsafeLocation: "Unsafe location detected! Brace yourself while I try to save you!"
+
+TeleportedTo: "Teleported to"

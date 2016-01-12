@@ -1,0 +1,19 @@
+# Teleport range from spawn point
+Range: 5000
+
+# Default cooldown time for players after using rtp
+Cooldown: 30
+
+# Blocks blacklist where players won't teleport at
+BlockBlacklist:
+- GRAVEL
+
+# Blocks whitelist. This is needed for some modded block.
+BlockWhitelist: []
+
+# Worlds blacklist
+WorldBlacklist:
+- DIM-1
+
+# Show the warning message before first /rtp use
+WarningMessage: true
