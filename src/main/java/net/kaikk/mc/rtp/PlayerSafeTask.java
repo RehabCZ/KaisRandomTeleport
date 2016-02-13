@@ -23,8 +23,13 @@ public class PlayerSafeTask extends BukkitRunnable {
 				this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + Messages.get("OnDeath"));
 			} else {
 				this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + Messages.get("UnsafeLocation"));
-
-				this.player.setHealth(this.player.getHealth()+this.player.getLastDamage());
+				double health = this.player.getHealth()+this.player.getLastDamage();
+				if (health>20) {
+					health = 20;
+				} else if (health<1) {
+					health = 1;
+				}
+				this.player.setHealth(health);
 				this.player.setFireTicks(0);
 				this.player.teleport(this.playerOldLocation);
 				this.player.setLastDamageCause(null);
