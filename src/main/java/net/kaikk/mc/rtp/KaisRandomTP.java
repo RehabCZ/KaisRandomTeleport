@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class KaisRandomTP extends JavaPlugin {
 	static KaisRandomTP instance;
-	static final String messagePrefix = "[Kai's Random Teleport]";
+	static final String messagePrefix = "&a[&6RTP&a]";
 	Config config;
 	Map<UUID,Long> lastUsed = new ConcurrentHashMap<UUID,Long>();
 

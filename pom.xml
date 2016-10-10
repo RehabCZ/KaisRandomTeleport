@@ -59,6 +59,11 @@
 			<type>jar</type>
 			<scope>provided</scope>
 		</dependency>
+	 <dependency>
+	  <groupId>com.wimbli.WorldBorder</groupId>
+	  <artifactId>WorldBorder</artifactId>
+	  <version>1.8.6</version>
+	 </dependency>
 	</dependencies>
 	<properties>
 		<package>net.kaikk.mc.rtp</package>
