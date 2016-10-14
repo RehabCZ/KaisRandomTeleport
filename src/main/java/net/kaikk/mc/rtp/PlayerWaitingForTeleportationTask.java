@@ -30,7 +30,7 @@ public class PlayerWaitingForTeleportationTask extends BukkitRunnable {
 			return;
 		}
 		if (this.player.getLastDamageCause()!=null || this.player.getLocation().distanceSquared(this.startLocation)>2) {
-			this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + Messages.get("MovedOrDamaged"));
+			this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED + Messages.get("MovedOrDamaged"));
 			KaisRandomTP.instance.lastUsed.put(this.player.getUniqueId(), 0L);
 			this.cancel();
 			return;

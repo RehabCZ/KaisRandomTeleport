@@ -30,7 +30,7 @@ class SearchTeleportLocationTask extends BukkitRunnable {
 		}
 		
 		if (this.player.getLastDamageCause()!=null || this.player.getLocation().distanceSquared(startLocation)>2) {
-			this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + Messages.get("MovedOrDamaged"));
+			this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED + Messages.get("MovedOrDamaged"));
 			KaisRandomTP.instance.lastUsed.put(this.player.getUniqueId(), 0L);
 			return;
 		}
@@ -59,7 +59,7 @@ class SearchTeleportLocationTask extends BukkitRunnable {
 			
 			new CheckTeleportLocationTask(this.player, startLocation, x, z, this.count).runTaskLaterAsynchronously(KaisRandomTP.instance, 1L);
 		} else {
-			this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + Messages.get("NoLocation"));
+			this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED + Messages.get("NoLocation"));
 			KaisRandomTP.instance.lastUsed.put(this.player.getUniqueId(), System.currentTimeMillis()-((KaisRandomTP.instance.config.cooldown-5)*1000));
 		}
 	}

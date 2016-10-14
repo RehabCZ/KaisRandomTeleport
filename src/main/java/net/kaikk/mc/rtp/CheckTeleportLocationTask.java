@@ -44,7 +44,7 @@ class CheckTeleportLocationTask extends BukkitRunnable {
 			if (count<500) {
 				new SearchTeleportLocationTask(this.player, this.startLocation, this.count+5).runTask(KaisRandomTP.instance);
 			} else {
-				this.player.sendMessage(ChatColor.RED + KaisRandomTP.messagePrefix + " " + Messages.get("NoLocationFound"));
+				this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED +" " + Messages.get("NoLocationFound"));
 				KaisRandomTP.instance.lastUsed.put(this.player.getUniqueId(), System.currentTimeMillis()-((KaisRandomTP.instance.config.cooldown-5)*1000));
 			}
 		} else {

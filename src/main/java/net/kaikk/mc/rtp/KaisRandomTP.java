@@ -17,7 +17,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class KaisRandomTP extends JavaPlugin {
 	static KaisRandomTP instance;
-	static final String messagePrefix = "&a[&6RTP&a]";
+	static final String messagePrefix = ChatColor.GREEN + "[" + ChatColor.GOLD + "RTP" + ChatColor.GREEN + "]";
 	Config config;
 	Map<UUID,Long> lastUsed = new ConcurrentHashMap<UUID,Long>();
 
@@ -44,12 +44,12 @@ public class KaisRandomTP extends JavaPlugin {
 		Player player = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("randomtp")) {
 			if(!player.hasPermission("rtp.use")) {
-				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("NoPermission"));
+				player.sendMessage(messagePrefix + ChatColor.RED + " " + Messages.get("NoPermission"));
 				return false;
 			}
 			
 			if (this.config.warningMessage && !player.hasPermission("rtp.bypass") && this.lastUsed.get(player.getUniqueId())==null) {
-				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("WarningMessage"));
+				player.sendMessage(messagePrefix + " " + ChatColor.RED + Messages.get("WarningMessage"));
 				this.lastUsed.put(player.getUniqueId(), 0L);
 				return false;
 			}
@@ -64,18 +64,18 @@ public class KaisRandomTP extends JavaPlugin {
 		World world = player.getWorld();
 		
 		if (player.getHealth()<4) {
-			player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("LowHealth"));
+			player.sendMessage(messagePrefix + ChatColor.RED + " " + Messages.get("LowHealth"));
 			return;
 		}
 		
 		if (player.getNoDamageTicks()>0) {
-			player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("GotDamaged"));
+			player.sendMessage(messagePrefix + ChatColor.RED + " " + Messages.get("GotDamaged"));
 			return;
 		}
 		
 		if (!player.hasPermission("rtp.bypass")) {
 			if (isBlacklistedWorld(world.getName())) {
-				player.sendMessage(ChatColor.RED + messagePrefix + " " + Messages.get("BlacklistedWorld"));
+				player.sendMessage(messagePrefix + ChatColor.RED +  " " + Messages.get("BlacklistedWorld"));
 				return;
 			}
 			
@@ -83,7 +83,7 @@ public class KaisRandomTP extends JavaPlugin {
 
 			if (lastUsed!=null && System.currentTimeMillis()-lastUsed < this.config.cooldown*1000) {
 				player.teleport(player.getLocation());
-				player.sendMessage(ChatColor.RED + messagePrefix + Messages.get("Cooldown").replace("%seconds", String.valueOf((this.config.cooldown-((System.currentTimeMillis()-lastUsed)/1000)))));
+				player.sendMessage(messagePrefix + ChatColor.RED +  Messages.get("Cooldown").replace("%seconds", String.valueOf((this.config.cooldown-((System.currentTimeMillis()-lastUsed)/1000)))));
 				return;
 			}
 		} else {
@@ -91,12 +91,12 @@ public class KaisRandomTP extends JavaPlugin {
 
 			if (lastUsed!=null && System.currentTimeMillis()-lastUsed < 5000) {
 				player.teleport(player.getLocation());
-				player.sendMessage(ChatColor.RED + messagePrefix + Messages.get("Cooldown").replace("%seconds", String.valueOf((5-((System.currentTimeMillis()-lastUsed)/1000)))));
+				player.sendMessage(messagePrefix + ChatColor.RED + Messages.get("Cooldown").replace("%seconds", String.valueOf((5-((System.currentTimeMillis()-lastUsed)/1000)))));
 				return;
 			}
 		}
 
-		player.sendMessage(ChatColor.GOLD + messagePrefix + " " + Messages.get("PendingTeleport"));
+		player.sendMessage(messagePrefix + ChatColor.GOLD +  " " + Messages.get("PendingTeleport"));
 		KaisRandomTP.instance.lastUsed.put(player.getUniqueId(), System.currentTimeMillis());
 		Location loc=player.getLocation();
 		new SearchTeleportLocationTask(player, new Location(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ())).runTask(this);
