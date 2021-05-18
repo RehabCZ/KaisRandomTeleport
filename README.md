@@ -4,10 +4,6 @@ This plugin teleports players to a random location.
 If you found an issue, please report it!
 Please use the "issues" page on Github!
 
-DeVcoFTB's servers use this plugin. Check it at http://www.devcoftb.com
-
-## Download
-All builds for my plugins can be found at this link: http://kaikk.net/mc/
 
 ### Features
 - Easy to use
