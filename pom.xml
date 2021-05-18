@@ -48,7 +48,7 @@
 	<repositories>
 		<repository>
 			<id>bukkit-repo</id>
-			<url>http://repo.bukkit.org/content/groups/public/</url>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -56,13 +56,15 @@
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
 			<version>1.7.9-R0.2</version>
-			<type>jar</type>
-			<scope>provided</scope>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/spigot.jar</systemPath>
 		</dependency>
 	 <dependency>
 	  <groupId>com.wimbli.WorldBorder</groupId>
 	  <artifactId>WorldBorder</artifactId>
-	  <version>1.8.6</version>
+	  <version>1.8.1</version>
+		 <scope>system</scope>
+		 <systemPath>${project.basedir}/libs/WorldBorder.jar</systemPath>
 	 </dependency>
 	</dependencies>
 	<properties>
