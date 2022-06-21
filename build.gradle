@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+group 'net.kaikk.mc'
+
+sourceCompatibility = 1.8
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    mavenCentral()
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    }
+    maven {
+        url = 'https://maven.petrus.dev/public'
+    }
+}
+
+dependencies {
+    compileOnly 'br.com.finalcraft:EverNifeCore:2.0.2'
+    compileOnly name: "WorldBorder"
+
+    compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+}

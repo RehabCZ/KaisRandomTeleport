@@ -1,5 +1,6 @@
 *.class
 lib/
+build/
 src/test/
 .settings/
 target/

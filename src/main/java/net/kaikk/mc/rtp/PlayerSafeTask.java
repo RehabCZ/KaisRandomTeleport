@@ -1,6 +1,5 @@
 package net.kaikk.mc.rtp;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,9 +19,9 @@ public class PlayerSafeTask extends BukkitRunnable {
 		if (this.player.getLastDamageCause()!=null) {
 			this.cancel();
 			if (this.player.isDead()) {
-				this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED +  Messages.get("OnDeath"));
+				this.player.sendMessage(KaisRandomTP.messagePrefix + Messages.get("OnDeath"));
 			} else {
-				this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED + Messages.get("UnsafeLocation"));
+				this.player.sendMessage(KaisRandomTP.messagePrefix + Messages.get("UnsafeLocation"));
 				double health = this.player.getHealth()+this.player.getLastDamage();
 				if (health>20) {
 					health = 20;

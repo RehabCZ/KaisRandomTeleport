@@ -1,6 +1,5 @@
 package net.kaikk.mc.rtp;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -46,7 +45,7 @@ public class TeleportTask extends BukkitRunnable {
 			if (!this.flight) {
 				this.player.setAllowFlight(false);
 			}
-			this.player.sendMessage(KaisRandomTP.messagePrefix + " " + ChatColor.GOLD + Messages.get("TeleportedTo")+" "+this.rtpLocation.getBlockX()+", "+this.rtpLocation.getBlockY()+", "+this.rtpLocation.getBlockZ()+".");
+			this.player.sendMessage(KaisRandomTP.messagePrefix + Messages.get("TeleportedTo")+" "+this.rtpLocation.getBlockX()+", "+this.rtpLocation.getBlockY()+", "+this.rtpLocation.getBlockZ()+".");
 			new PlayerSafeTask(this.player, this.playerOldLocation).runTaskTimer(KaisRandomTP.instance, 0L, this.player.getMaximumNoDamageTicks()-1);
 			this.cancel();
 		}

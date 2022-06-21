@@ -1,6 +1,5 @@
 package net.kaikk.mc.rtp;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -30,7 +29,7 @@ public class PlayerWaitingForTeleportationTask extends BukkitRunnable {
 			return;
 		}
 		if (this.player.getLastDamageCause()!=null || this.player.getLocation().distanceSquared(this.startLocation)>2) {
-			this.player.sendMessage(KaisRandomTP.messagePrefix + ChatColor.RED + Messages.get("MovedOrDamaged"));
+			this.player.sendMessage(KaisRandomTP.messagePrefix + Messages.get("MovedOrDamaged"));
 			KaisRandomTP.instance.lastUsed.put(this.player.getUniqueId(), 0L);
 			this.cancel();
 			return;
