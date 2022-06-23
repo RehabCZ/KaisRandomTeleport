@@ -1,6 +1,6 @@
 name: KaisRandomTeleport
 main: net.kaikk.mc.rtp.KaisRandomTP
-version: ${project.version}
+version: 1.7.1
 author: KaiNoMood
 softdepend: [WorldBorder]
 
