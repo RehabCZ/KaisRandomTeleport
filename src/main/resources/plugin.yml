@@ -1,13 +1,13 @@
-name: ${project.artifactId}
-main: ${package}.${project.artifactId}
+name: KaisRandomTeleport
+main: net.kaikk.mc.rtp.KaisRandomTP
 version: ${project.version}
-author: ${developer}
+author: KaiNoMood
 softdepend: [WorldBorder]
 
 commands:
    randomtp:
       description: RandomTP main command
-      aliases: [rtp]
+      aliases: [rtp,randomteleport]
 
 permissions:
     rtp.use:
